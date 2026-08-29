@@ -6,6 +6,8 @@
     "dev": "remotion studio",
     "render": "remotion render",
     "render:all": "node scripts/render-batch.mjs",
+    "make-reels": "node --env-file=.env scripts/make-reels.mjs",
+    "voiceovers": "node --env-file=.env scripts/make-reels.mjs --vo-only",
     "upgrade": "remotion upgrade"
   },
   "dependencies": {
@@ -18,6 +20,7 @@
   },
   "devDependencies": {
     "@types/react": "18.3.1",
+    "tsx": "4.19.2",
     "typescript": "5.4.5"
   }
 }
