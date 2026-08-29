@@ -13,6 +13,7 @@
 
 import { BackgroundVariant } from '../engine/Background';
 import type { CallScript } from '../components/dashboard/CallModal';
+import type { BeatInput } from '../engine/beatTimeline';
 
 export const PLAN_LABELS = {
   free: 'Free',
@@ -20,7 +21,7 @@ export const PLAN_LABELS = {
   scale: 'Scale',
 } as const;
 
-/** Marketing pricing (from the live homepage). */
+/** Marketing pricing (UNCONFIRMED — verify before rendering into a reel). */
 export const PLAN_PRICING = {
   free: { monthly: 0, perClient: 29.99, label: 'Free' },
   pro: { monthly: 99, perClient: 9.99, label: 'Pro' },
@@ -29,22 +30,17 @@ export const PLAN_PRICING = {
 
 /** A row shape for DashboardShowcase — variant field decides how it renders. */
 export interface DashboardRow {
-  /** For 'calls': caller name. For 'leads': lead / business name. */
   primary: string;
-  /** For 'calls': short summary. For 'leads': industry / label. */
   secondary?: string;
-  /** For 'calls': duration string "1:24". For 'leads': location / phone. */
   meta?: string;
-  /** For 'calls': 'booked' | 'lead' | 'info'. For 'leads': 'new' | 'contacted'. */
   status?: 'booked' | 'lead' | 'info' | 'new' | 'contacted';
-  /** Frame offset when this row lands (relative to template's rowsInFrame). */
   atFrame?: number;
 }
 
 export type TemplateId =
   | 'CounterHero'        // hook + 2-5 stat cards (reseller money/proof)
-  | 'QuestionHook'       // kinetic question -> answer (the #1 hook type)
-  | 'StatPunch'          // ONE enormous number fills the frame (scroll-stopper)
+  | 'QuestionHook'       // kinetic question -> answer
+  | 'StatPunch'          // ONE enormous number fills the frame
   | 'SplitContrast'      // old-way vs new-way / them vs you
   | 'BeforeAfter'        // missed-call -> captured
   | 'DashboardShowcase'  // animated real dashboard surface
@@ -52,68 +48,58 @@ export type TemplateId =
   | 'LogoAssembly'       // infra/vendor logos assemble (blocked on logos)
   | 'ProductDemo'        // CONCEPT A — recreated dashboard surface in device frame
   | 'KineticStatement'   // CONCEPT B — pure kinetic typography, no UI
-  | 'CallFlow'           // CONCEPT A redesigned — call → summary → SMS
-  | 'BeforeAfter'        // CONCEPT A variant — MISSED vs ANSWERED, hard cut
-  | 'StatementStack'     // CONCEPT B variant — 3 progressive claims
-  | 'DashboardShowcase'; // CONCEPT A variant — animated calls/leads list panel
+  | 'CallFlow';          // CONCEPT A — call → summary → SMS (beat-driven)
 
 /** A single on-screen "beat" — a line that animates in. */
 export interface Beat {
   text: string;
-  emphasis?: boolean;      // highlight in primary color
-  prefix?: string;         // e.g. "$" rendered smaller
-  suffix?: string;         // e.g. "/mo"
-  countTo?: number;        // if set, number counts up to this
+  emphasis?: boolean;
+  prefix?: string;
+  suffix?: string;
+  countTo?: number;
 }
 
-/**
- * Lucide icon names usable in specs (string → resolved in templates via a map,
- * so specs stay pure data and can be generated). Extend components/iconMap.ts.
- */
 export type IconName =
   | 'DollarSign' | 'Users' | 'TrendingUp' | 'Phone' | 'PhoneCall'
   | 'Building' | 'Gift' | 'Banknote' | 'Sparkles' | 'Zap'
   | 'Calendar' | 'CheckCircle2' | 'ArrowUpRight' | 'Bot' | 'Clock';
 
-/** One stat card. `icon` optional (StatPunch uses no icon; CounterHero does). */
 export interface StatCardData {
   icon?: IconName;
   label: string;
-  value: number;          // counts up
-  prefix?: string;        // "$"
-  suffix?: string;        // "/mo"
+  value: number;
+  prefix?: string;
+  suffix?: string;
   decimals?: number;
-  highlight?: boolean;    // emerald-emphasized (the payoff card)
+  highlight?: boolean;
 }
 
-/** Optional mini bar chart (mirrors homepage .minichart / analytics). */
 export interface MiniChartData {
-  bars: number[];         // relative heights 0..1
+  bars: number[];
   label?: string;
 }
 
 /**
  * Per-template options. All optional; each template reads only what it needs.
- * This is how one template flexes across many reels without new template files.
  */
 export interface ReelOptions {
   // CounterHero / money
-  stats?: StatCardData[];        // 2–5 cards; overrides beat-derived defaults
-  chart?: MiniChartData;         // optional mini bar chart
-  payoff?: Beat;                 // the "you keep…" closing emphasis line
+  stats?: StatCardData[];
+  chart?: MiniChartData;
+  payoff?: Beat;
   // SplitContrast / BeforeAfter
   left?: { title: string; lines: string[] };
   right?: { title: string; lines: string[] };
   // ThreeBeatList
   points?: { icon?: IconName; title: string; body?: string }[];
   // generic
-  showProgress?: boolean;        // show a thin progress/scrub line
-  // ProductDemo (Concept A — recreated dashboard surface on a timeline)
-  callScript?: CallScript;       // for ProductDemo / CallModal — scripted call
-  ctaSubline?: string;           // small line below CTA pill
-  // KineticStatement (Concept B — pure typography)
-  emphasisWords?: string[];      // lowercase words to render in emerald
-  // CallFlow (Concept A redesigned)
+  showProgress?: boolean;
+  // ProductDemo
+  callScript?: CallScript;
+  ctaSubline?: string;
+  // KineticStatement
+  emphasisWords?: string[];
+  // CallFlow (product data shown on screen)
   callFlow?: {
     businessName?: string;
     callerName?: string;
@@ -124,7 +110,7 @@ export interface ReelOptions {
     smsApp?: string;
     smsBody?: string;
   };
-  // BeforeAfter (new — comparison composition)
+  // BeforeAfter
   beforeAfter?: {
     businessName?: string;
     callerName?: string;
@@ -134,67 +120,62 @@ export interface ReelOptions {
     afterWord?: string;
     missedAt?: string;
   };
-  // StatementStack (new — 3 progressive claims)
-  statements?: {
-    text: string;
-    /** Lowercase words to render in emerald. */
-    emphasis?: string[];
-  }[];
-  // DashboardShowcase (new — animated calls/leads list panel)
+  // StatementStack
+  statements?: { text: string; emphasis?: string[] }[];
+  // DashboardShowcase
   dashboardShowcase?: {
     variant?: 'calls' | 'leads';
-    /** Small mono eyebrow above the panel — the "surface" label. */
     surfaceLabel?: string;
-    /** Business/brand shown in the panel header — the white-label agency's client. */
     brandName?: string;
-    /** Rows that populate. Field shape is variant-driven; see the template. */
     rows?: DashboardRow[];
-    /** Big hook line above the panel (Anton, single line). */
     headline?: string;
   };
-  /** Sound-off captions for reels that want narration (CallFlow, etc.). */
-  captions?: {
-    text: string;
-    inFrame: number;
-    outFrame: number;
-    emphasis?: string[];
-  }[];
+  // Legacy hand-authored captions (still supported; beat-driven preferred)
+  captions?: { text: string; inFrame: number; outFrame: number; emphasis?: string[] }[];
+
+  // ── VOICEOVER + BEAT-DRIVEN TIMING ───────────────────────────────────────
+  /** The aligned beats (visual + vo + caption per beat). Drives timing. */
+  beats?: BeatInput[];
+  /** The full spoken script (for reference / regeneration). Presence → play mp3. */
+  voiceover?: string;
+  /** Which angle this reel makes (maps to a voice; see scripts/voices.mjs). */
+  voiceAngle?: string;
+  /** Real per-beat VO durations in frames, written by generate-voiceovers.mjs. */
+  voBeatFrames?: number[];
 }
 
 export interface ReelSpec {
-  id: string;                      // unique, e.g. "reel-001"
-  seed: number;                    // drives all deterministic variation
+  id: string;
+  seed: number;
   template: TemplateId;
-  paletteId?: string;              // explicit palette, else derived from seed
-  background?: BackgroundVariant;  // explicit bg, else derived from seed
-  mode?: 'dark' | 'light';         // override palette's default mode
+  paletteId?: string;
+  background?: BackgroundVariant;
+  mode?: 'dark' | 'light';
 
-  hook: string;                    // frame-1 hook line (must land < 1.5s)
-  beats: Beat[];                   // body beats
-  cta: string;                     // closing call-to-action
-  kicker?: string;                 // small eyebrow text above hook
+  hook: string;
+  beats: Beat[];
+  cta: string;
+  kicker?: string;
 
-  options?: ReelOptions;           // per-template flex (cards, chart, points…)
+  options?: ReelOptions;
 
-  durationInFrames?: number;       // default 20s * fps handled by Root
-  notes?: string;                  // author note, not rendered
+  durationInFrames?: number;
+  notes?: string;
 }
 
 export const DEFAULTS = {
   fps: 30,
   width: 1080,
   height: 1920,
-  durationSeconds: 20, // cold TOF sweet spot 15-30s
+  durationSeconds: 20,
 };
 
-/** 9:16 safe zones (px) from the Remotion content-engine rules. */
 export const SAFE = {
   top: 150,
   bottom: 170,
   sides: 60,
 };
 
-/** Minimum font sizes (px) from the rules. */
 export const FONT_MIN = {
   headline: 56,
   body: 36,

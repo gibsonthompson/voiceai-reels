@@ -1,30 +1,34 @@
 /**
- * templates/CallFlow.tsx — CONCEPT A, redesigned (the real product flow).
+ * templates/CallFlow.tsx — CONCEPT A, BEAT-DRIVEN (content sets the timing).
  *
- * Replaces the rejected chat-log CallModal demo. Shows the actual product moment
- * the agency owner (reseller's client) cares about:
+ * This replaces the hardcoded-BEATS version. The reel's timeline now comes from
+ * its beats (each beat's length = its voiceover audio length, or a reading-speed
+ * estimate when VO isn't generated yet). The summary beat lasts exactly as long
+ * as its narration — the ~13s dead hold is gone by construction.
  *
- *   1. RINGING            — phone shows the incoming call
- *   2. AI ON CALL         — brief, voice-waveform pulsing, AI handles it
- *   3. SUMMARY MATERIALIZES — the real AI Summary card + Contact Details slide in
- *                              and the AI-written summary types out word-by-word
- *   4. SMS LANDS          — phone returns in lockscreen view; iOS-style
- *                              notification drops in: the owner gets the win as a text
- *   5. CTA                — clean pill, no eyebrow tag-along
+ * Three synced tracks per beat:
+ *   - visual  : which product stage renders (ringing/live/summary/sms/cta)
+ *   - vo      : spoken line (drives the beat's length; played via <Audio>)
+ *   - caption : one on-screen phrase (from the beats, never echoing the vo)
  *
- * Three rules (set with Gibson, do not break):
- *   - No eyebrow / mono-uppercase top-of-frame kicker (the AI tell).
- *   - Real product UI ports — every surface comes from `source-dashboards`.
- *   - Asymmetric, ONE dominant element per beat. No symmetric stat grids.
+ * Beats + call content come from the spec:
+ *   spec.options.beats      : BeatInput[]        (the aligned script)
+ *   spec.options.callFlow   : CallFlowOptions    (the product data shown)
+ *   spec.options.voBeatFrames?: number[]         (real per-beat VO durations,
+ *                              written by scripts/generate-voiceovers.mjs)
+ *   spec.options.voiceover? : string             (presence → play the mp3)
+ *
+ * Falls back to sensible defaults if a spec omits beats, so it always renders.
  */
 
 import React from 'react';
 import {
   AbsoluteFill,
+  Audio,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
   interpolate,
-  Sequence,
 } from 'remotion';
 import {
   ArrowRight, User, Phone, MapPin, AlertCircle,
@@ -34,13 +38,16 @@ import { ReelSpec } from '../specs/schema';
 import { Background, BackgroundVariant } from '../engine/Background';
 import { FONTS } from '../theme/fonts';
 import { springProgress, drift } from '../engine/motion';
+import {
+  BeatInput, resolveBeats, beatsToCaptions,
+} from '../engine/beatTimeline';
 import { PhoneMockup } from '../components/dashboard/PhoneMockup';
 import { IncomingCallScreen } from '../components/dashboard/IncomingCallScreen';
 import { LiveCallScreen } from '../components/dashboard/LiveCallScreen';
 import { AISummaryCard } from '../components/dashboard/AISummaryCard';
 import { ContactDetailsCard, ContactRow } from '../components/dashboard/ContactDetailsCard';
 import { SmsNotificationBanner } from '../components/dashboard/SmsNotificationBanner';
-import { CaptionTrack, CaptionLine } from '../components/CaptionTrack';
+import { CaptionTrack } from '../components/CaptionTrack';
 
 interface Props {
   spec: ReelSpec;
@@ -59,312 +66,192 @@ export interface CallFlowOptions {
   smsBody: string;
 }
 
-const DEFAULTS: CallFlowOptions = {
+const DEFAULT_CALL: CallFlowOptions = {
   businessName: 'Riverside Plumbing',
   callerName: 'John Carter',
   callerPhone: '(555) 218-4203',
   callerAddress: '4218 Oak Avenue',
   priority: 'High',
   summary:
-    'John Carter called about a broken water heater at 4218 Oak Avenue. The AI scheduled a tech visit for tomorrow at 9:00 AM and texted confirmation.',
+    'John Carter called about a broken water heater at 4218 Oak Avenue. The AI booked a tech visit for tomorrow at 9 AM and texted confirmation.',
   smsApp: 'MESSAGES',
   smsBody:
-    'New booked appointment — John Carter, water heater repair, tomorrow 9:00 AM. Full summary in your dashboard.',
+    'New booked appointment. John Carter, water heater repair, tomorrow 9:00 AM. Full summary in your dashboard.',
 };
 
-// ─── Beat timings (frames @ 30fps) ────────────────────────────────────────
-// 0     90      210                    600        790     900
-// │ring │ live  │ summary materializes │ sms lands │ CTA   │
-// └── 3s ┴─ 4s ─┴───────── 13s ────────┴──── 6.3s ─┴─ 3.7s ┘
-const BEATS = {
-  ringingIn: 0,
-  ringingOut: 90,
-  liveIn: 90,
-  liveOut: 210,
-  summaryIn: 210,
-  summaryTypeStart: 250,
-  contactIn: 360,
-  summaryOut: 600,
-  smsPhoneIn: 600,
-  smsBannerIn: 660,
-  smsOut: 790,
-  ctaIn: 790,
-};
+/** Default aligned beats (used if a spec doesn't supply its own). */
+const DEFAULT_BEATS: BeatInput[] = [
+  { visual: 'ringing', vo: "A call comes into your client's business.", caption: 'Incoming call', minSeconds: 2.2 },
+  { visual: 'live', vo: 'The AI picks up on the first ring, and talks like a real person.', caption: 'Sounds human', emphasis: ['human'], minSeconds: 3 },
+  { visual: 'summary', vo: 'It answers the questions, books the job, and writes the whole summary itself.', caption: 'It does the work', emphasis: ['work'], minSeconds: 3.5 },
+  { visual: 'sms', vo: 'Your client just gets the win as a text. They did nothing. You did nothing.', caption: 'Zero work for you', emphasis: ['zero'], minSeconds: 3 },
+  { visual: 'cta', vo: "You keep the margin while it runs the front desk.", minSeconds: 2.4 },
+];
+
+/** How long the summary type-out should take, tied to summary length. */
+function typeSecondsFor(summary: string, cps = 32): number {
+  return summary.length / cps;
+}
 
 export const CallFlow: React.FC<Props> = ({ spec, theme, background }) => {
   const frame = useCurrentFrame();
-  const { fps, width } = useVideoConfig();
+  const { fps } = useVideoConfig();
 
-  const cfg = { ...DEFAULTS, ...(spec.options?.callFlow ?? {}) };
+  const cfg: CallFlowOptions = { ...DEFAULT_CALL, ...(spec.options?.callFlow ?? {}) };
+  const beatInput: BeatInput[] = spec.options?.beats ?? DEFAULT_BEATS;
+  const voBeatFrames: number[] | undefined = spec.options?.voBeatFrames;
 
-  // ─── Captions (sound-off narration, beat-synced) ─────────────────────────
-  const captions: CaptionLine[] = spec.options?.captions ?? [
-    { text: "A call comes into your client's business.", inFrame: 28, outFrame: 84,  emphasis: [] },
-    { text: 'Your white-label AI answers in one ring.',   inFrame: 110, outFrame: 200, emphasis: ['white-label'] },
-    { text: 'It captures everything. Writes the summary.', inFrame: 235, outFrame: 590, emphasis: ['summary'] },
-    { text: 'Your client gets the win as a text.',         inFrame: 660, outFrame: 770, emphasis: ['text'] },
-  ];
+  // Content-driven timeline. If real VO durations are present they set each
+  // beat's length; else reading-speed estimate. Summary beat also honors the
+  // type-out length so the animation always finishes inside its beat.
+  const beatInputTimed = beatInput.map((b) =>
+    b.visual === 'summary'
+      ? { ...b, minSeconds: Math.max(b.minSeconds ?? 0, typeSecondsFor(cfg.summary) + 0.8) }
+      : b,
+  );
+  const { beats } = resolveBeats(beatInputTimed, { fps, beatDurations: voBeatFrames });
 
-  // ─── BEAT 1+2: phone holds the incoming + live call ──────────────────────
-  // Single phone position used for beats 1 + 2. Slides out left during 3.
+  const beatOf = (v: BeatInput['visual']) => beats.find((b) => b.visual === v);
+  const ring = beatOf('ringing');
+  const live = beatOf('live');
+  const summary = beatOf('summary');
+  const sms = beatOf('sms');
+  const cta = beatOf('cta');
+
+  const captions = beatsToCaptions(beats);
+  const hasVO = Boolean(spec.options?.voiceover);
+
+  // ── Phone (beats ringing+live): visible until summary starts ──────────────
   const phoneWidth = 600;
-  const phoneOutP = springProgress(frame, fps, BEATS.liveOut, 'smooth');
-  const phoneOutOpacity = interpolate(phoneOutP, [0, 1], [1, 0], {
-    extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
-  });
+  const ringStart = ring?.startFrame ?? 0;
+  const liveStart = live?.startFrame ?? 90;
+  const phoneEnd = summary?.startFrame ?? 210;
+
+  const phoneInP = springProgress(frame, fps, ringStart, 'elegant');
+  const phoneInOpacity = interpolate(phoneInP, [0, 1], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const phoneInTy = interpolate(phoneInP, [0, 1], [60, 0]);
+  const phoneOutP = springProgress(frame, fps, phoneEnd, 'smooth');
+  const phoneOutOpacity = interpolate(phoneOutP, [0, 1], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
   const phoneOutTx = interpolate(phoneOutP, [0, 1], [0, -260]);
   const phoneOutScale = interpolate(phoneOutP, [0, 1], [1, 0.9]);
-  const phoneInP = springProgress(frame, fps, BEATS.ringingIn, 'elegant');
-  const phoneInOpacity = interpolate(phoneInP, [0, 1], [0, 1], {
-    extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
-  });
-  const phoneInTy = interpolate(phoneInP, [0, 1], [60, 0]);
   const driftXY = drift(frame - 30, 'y', 5, 160);
+  const liveFade = interpolate(frame, [liveStart - 6, liveStart + 14], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
-  // Resolve incoming → live transition: cross-fade at frame 90.
-  const liveFade = interpolate(frame, [BEATS.liveIn - 6, BEATS.liveIn + 14], [0, 1], {
-    extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
-  });
-
-  // ─── BEAT 3: summary + contact details ──────────────────────────────────
-  const summaryExitP = springProgress(frame, fps, BEATS.summaryOut, 'smooth');
-  const summaryExitOpacity = interpolate(summaryExitP, [0, 1], [1, 0], {
-    extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
-  });
+  // ── Summary beat ──────────────────────────────────────────────────────────
+  const summaryStart = summary?.startFrame ?? 210;
+  const summaryEnd = summary?.endFrame ?? 500;
+  const contactStart = summaryStart + Math.round(fps * 1.2);
+  const summaryExitP = springProgress(frame, fps, summaryEnd, 'smooth');
+  const summaryExitOpacity = interpolate(summaryExitP, [0, 1], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
   const summaryExitTy = interpolate(summaryExitP, [0, 1], [0, -40]);
 
   const contactRows: ContactRow[] = [
-    { icon: User,        label: 'Caller',   value: cfg.callerName },
-    { icon: Phone,       label: 'Phone',    value: cfg.callerPhone, valueColor: theme.primary },
-    { icon: MapPin,      label: 'Address',  value: cfg.callerAddress },
+    { icon: User, label: 'Caller', value: cfg.callerName },
+    { icon: Phone, label: 'Phone', value: cfg.callerPhone, valueColor: theme.primary },
+    { icon: MapPin, label: 'Address', value: cfg.callerAddress },
     {
-      icon: AlertCircle,
-      label: 'Priority',
-      value: cfg.priority ?? 'Normal',
-      valueColor:
-        cfg.priority === 'High' ? '#ef4444' :
-        cfg.priority === 'Medium' ? '#f59e0b' :
-        theme.text,
+      icon: AlertCircle, label: 'Priority', value: cfg.priority ?? 'Normal',
+      valueColor: cfg.priority === 'High' ? '#ef4444' : cfg.priority === 'Medium' ? '#f59e0b' : theme.text,
     },
   ];
 
-  // ─── BEAT 4: phone w/ SMS banner ────────────────────────────────────────
-  const smsPhoneP = springProgress(frame, fps, BEATS.smsPhoneIn, 'elegant');
-  const smsPhoneOpacity = interpolate(smsPhoneP, [0, 1], [0, 1], {
-    extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
-  });
+  // ── SMS beat ────────────────────────────────────────────────────────────
+  const smsStart = sms?.startFrame ?? summaryEnd;
+  const smsBannerStart = smsStart + Math.round(fps * 1.6);
+  const smsPhoneP = springProgress(frame, fps, smsStart, 'elegant');
+  const smsPhoneOpacity = interpolate(smsPhoneP, [0, 1], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
   const smsPhoneTy = interpolate(smsPhoneP, [0, 1], [60, 0]);
-  // Phone dims (but stays visible) when CTA pops, recedes upward to make room.
-  const smsCtaDim = interpolate(
-    frame,
-    [BEATS.ctaIn - 10, BEATS.ctaIn + 20],
-    [1, 0.32],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const smsCtaShiftY = interpolate(
-    frame,
-    [BEATS.ctaIn, BEATS.ctaIn + 40],
-    [0, -80],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const smsDriftStyle = drift(frame - BEATS.smsPhoneIn, 'y', 4, 150);
+  const smsDriftStyle = drift(frame - smsStart, 'y', 4, 150);
 
-  // ─── BEAT 5: CTA ────────────────────────────────────────────────────────
-  const ctaP = springProgress(frame, fps, BEATS.ctaIn, 'pop');
-  const ctaOpacity = interpolate(ctaP, [0, 1], [0, 1], {
-    extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
-  });
+  // ── CTA beat ──────────────────────────────────────────────────────────────
+  const ctaStart = cta?.startFrame ?? smsStart + 180;
+  const ctaP = springProgress(frame, fps, ctaStart, 'pop');
+  const ctaOpacity = interpolate(ctaP, [0, 1], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
   const ctaTy = interpolate(ctaP, [0, 1], [30, 0]);
   const ctaScale = interpolate(ctaP, [0, 1], [0.9, 1]);
+  // SMS phone recedes when CTA lands
+  const smsCtaDim = interpolate(frame, [ctaStart - 10, ctaStart + 20], [1, 0.32], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const smsCtaShiftY = interpolate(frame, [ctaStart, ctaStart + 40], [0, -80], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
   return (
     <AbsoluteFill style={{ background: theme.bg, color: theme.text, fontFamily: FONTS.body }}>
       <Background variant={background} theme={theme} seed={spec.seed} />
 
-      {/* ─── BEATS 1 + 2: Phone with incoming → live call ────────────────────── */}
-      {frame < BEATS.summaryIn && (
+      {hasVO && <Audio src={staticFile(`vo/${spec.id}/voice.mp3`)} />}
+
+      {/* BEATS ringing + live: the phone */}
+      {frame < summaryStart && (
         <div
           style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: `translate(-50%, -50%) translate(${phoneOutTx}px, ${phoneInTy + (driftXY.transform?.includes('translateY') ? 0 : 0)}px) scale(${phoneOutScale})`,
+            position: 'absolute', left: '50%', top: '50%',
+            transform: `translate(-50%, -50%) translate(${phoneOutTx}px, ${phoneInTy}px) scale(${phoneOutScale})`,
             opacity: phoneInOpacity * phoneOutOpacity,
           }}
         >
           <PhoneMockup width={phoneWidth} perspective="subtle">
-            {/* incoming under live */}
             <div style={{ position: 'absolute', inset: 0, opacity: 1 - liveFade }}>
-              <IncomingCallScreen
-                theme={theme}
-                businessName={cfg.businessName}
-                callerName={cfg.callerName}
-                callerPhone={cfg.callerPhone}
-                enterFrame={BEATS.ringingIn}
-                phoneWidth={phoneWidth}
-              />
+              <IncomingCallScreen theme={theme} businessName={cfg.businessName} callerName={cfg.callerName} callerPhone={cfg.callerPhone} enterFrame={ringStart} phoneWidth={phoneWidth} />
             </div>
             <div style={{ position: 'absolute', inset: 0, opacity: liveFade }}>
-              <LiveCallScreen
-                theme={theme}
-                businessName={cfg.businessName}
-                callerName={cfg.callerName}
-                enterFrame={BEATS.liveIn}
-                phoneWidth={phoneWidth}
-              />
+              <LiveCallScreen theme={theme} businessName={cfg.businessName} callerName={cfg.callerName} enterFrame={liveStart} phoneWidth={phoneWidth} />
             </div>
           </PhoneMockup>
         </div>
       )}
 
-      {/* ─── BEAT 3: Summary + Contact details ─────────────────────────────── */}
-      {frame >= BEATS.summaryIn - 10 && frame < BEATS.summaryOut + 30 && (
+      {/* BEAT summary */}
+      {frame >= summaryStart - 10 && frame < summaryEnd + 30 && (
         <div
           style={{
-            position: 'absolute',
-            left: 60,
-            right: 60,
-            top: 280,
-            opacity: summaryExitOpacity,
-            transform: `translateY(${summaryExitTy}px)`,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 36,
+            position: 'absolute', left: 60, right: 60, top: 280,
+            opacity: summaryExitOpacity, transform: `translateY(${summaryExitTy}px)`,
+            display: 'flex', flexDirection: 'column', gap: 36,
           }}
         >
-          <AISummaryCard
-            theme={theme}
-            summary={cfg.summary}
-            enterFrame={BEATS.summaryIn}
-            typeStartFrame={BEATS.summaryTypeStart}
-          />
-          <ContactDetailsCard
-            theme={theme}
-            rows={contactRows}
-            enterFrame={BEATS.contactIn}
-          />
+          <AISummaryCard theme={theme} summary={cfg.summary} enterFrame={summaryStart} typeStartFrame={summaryStart + Math.round(fps * 0.9)} />
+          <ContactDetailsCard theme={theme} rows={contactRows} enterFrame={contactStart} />
         </div>
       )}
 
-      {/* ─── BEAT 4 + 5 BG: SMS notification on a lockscreen phone (stays through CTA) ─── */}
-      {frame >= BEATS.smsPhoneIn - 10 && (
+      {/* BEAT sms (stays through CTA, dimmed) */}
+      {frame >= smsStart - 10 && (
         <div
           style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
+            position: 'absolute', left: '50%', top: '50%',
             transform: `translate(-50%, -50%) translateY(${smsPhoneTy + smsCtaShiftY}px) ${smsDriftStyle.transform ?? ''}`,
             opacity: smsPhoneOpacity * smsCtaDim,
           }}
         >
           <PhoneMockup width={620} perspective="subtle">
-            {/* Lockscreen — large time + date, banner drops over */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                paddingTop: 150,
-                color: '#fafaf9',
-                fontFamily: FONTS.body,
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: FONTS.mono,
-                  fontSize: 22,
-                  letterSpacing: '0.02em',
-                  color: 'rgba(250,250,249,0.62)',
-                }}
-              >
-                Tuesday, June 9
-              </span>
-              <span
-                style={{
-                  fontFamily: FONTS.display,
-                  fontSize: 200,
-                  lineHeight: 1,
-                  letterSpacing: '-0.045em',
-                  marginTop: 8,
-                  color: '#fafaf9',
-                }}
-              >
-                9:41
-              </span>
-
-              {/* Notification banner */}
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 150, color: '#fafaf9', fontFamily: FONTS.body }}>
+              <span style={{ fontFamily: FONTS.mono, fontSize: 22, letterSpacing: '0.02em', color: 'rgba(250,250,249,0.62)' }}>Tuesday, June 9</span>
+              <span style={{ fontFamily: FONTS.display, fontSize: 200, lineHeight: 1, letterSpacing: '-0.045em', marginTop: 8, color: '#fafaf9' }}>9:41</span>
               <div style={{ marginTop: 70, width: 540 }}>
-                <SmsNotificationBanner
-                  theme={theme}
-                  app={cfg.smsApp ?? 'MESSAGES'}
-                  brand={cfg.businessName}
-                  body={cfg.smsBody}
-                  enterFrame={BEATS.smsBannerIn}
-                />
+                <SmsNotificationBanner theme={theme} app={cfg.smsApp ?? 'MESSAGES'} brand={cfg.businessName} body={cfg.smsBody} enterFrame={smsBannerStart} />
               </div>
             </div>
           </PhoneMockup>
         </div>
       )}
 
-      {/* ─── CAPTIONS — sound-off narration across beats 1–4 ─────────────── */}
+      {/* CAPTIONS — one phrase per beat, derived from the beats */}
       <CaptionTrack lines={captions} theme={theme} top={1660} />
 
-      {/* ─── BEAT 5: CTA ───────────────────────────────────────────────────── */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 200,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 24,
-        }}
-      >
+      {/* BEAT cta */}
+      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
         <div
           style={{
-            opacity: ctaOpacity,
-            transform: `translateY(${ctaTy}px) scale(${ctaScale})`,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 18,
-            padding: '26px 48px',
-            borderRadius: 999,
-            background: theme.primary,
-            color: theme.primaryText,
+            opacity: ctaOpacity, transform: `translateY(${ctaTy}px) scale(${ctaScale})`,
+            display: 'inline-flex', alignItems: 'center', gap: 18, padding: '26px 48px',
+            borderRadius: 999, background: theme.primary, color: theme.primaryText,
             boxShadow: '0 30px 80px -20px rgba(74,234,188,0.45)',
           }}
         >
-          <span
-            style={{
-              fontFamily: FONTS.display,
-              fontSize: 72,
-              letterSpacing: '-0.03em',
-              lineHeight: 1,
-              textTransform: 'uppercase',
-            }}
-          >
-            {spec.cta}
-          </span>
+          <span style={{ fontFamily: FONTS.display, fontSize: 72, letterSpacing: '-0.03em', lineHeight: 1, textTransform: 'uppercase' }}>{spec.cta}</span>
           <ArrowRight size={48} strokeWidth={2.5} />
         </div>
         {spec.options?.ctaSubline && (
-          <div
-            style={{
-              opacity: ctaOpacity,
-              transform: `translateY(${ctaTy}px)`,
-              fontFamily: FONTS.body,
-              fontSize: 34,
-              color: theme.textMuted,
-              textAlign: 'center',
-              maxWidth: 900,
-              lineHeight: 1.3,
-            }}
-          >
+          <div style={{ opacity: ctaOpacity, transform: `translateY(${ctaTy}px)`, fontFamily: FONTS.body, fontSize: 34, color: theme.textMuted, textAlign: 'center', maxWidth: 900, lineHeight: 1.3 }}>
             {spec.options.ctaSubline}
           </div>
         )}
@@ -372,3 +259,16 @@ export const CallFlow: React.FC<Props> = ({ spec, theme, background }) => {
     </AbsoluteFill>
   );
 };
+
+/** Total frames this reel needs — call from Root's calculateMetadata. */
+export function callFlowDurationInFrames(spec: ReelSpec, fps: number): number {
+  const cfg: CallFlowOptions = { ...DEFAULT_CALL, ...(spec.options?.callFlow ?? {}) };
+  const beatInput: BeatInput[] = spec.options?.beats ?? DEFAULT_BEATS;
+  const timed = beatInput.map((b) =>
+    b.visual === 'summary'
+      ? { ...b, minSeconds: Math.max(b.minSeconds ?? 0, cfg.summary.length / 32 + 0.8) }
+      : b,
+  );
+  const { totalFrames } = resolveBeats(timed, { fps, beatDurations: spec.options?.voBeatFrames });
+  return totalFrames + Math.round(fps * 0.6); // small tail
+}
