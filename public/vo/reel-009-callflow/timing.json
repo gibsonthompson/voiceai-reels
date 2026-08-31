@@ -1,0 +1,466 @@
+{
+  "reelId": "reel-009-callflow",
+  "fps": 30,
+  "voice": "Josh (peer)",
+  "script": "A call comes into your client's business. The AI picks up on the first ring, and talks like a real person. It answers the questions, books the job, and writes the whole summary itself. Your client just gets the win as a text. They did nothing. You did nothing. You keep the margin while it runs the front desk.",
+  "durationFrames": 621,
+  "voBeatFrames": [
+    72,
+    126,
+    147,
+    152,
+    88
+  ],
+  "words": [
+    {
+      "word": "A",
+      "start": 0,
+      "end": 0.093,
+      "startFrame": 0,
+      "endFrame": 3
+    },
+    {
+      "word": "call",
+      "start": 0.209,
+      "end": 0.534,
+      "startFrame": 6,
+      "endFrame": 16
+    },
+    {
+      "word": "comes",
+      "start": 0.615,
+      "end": 0.859,
+      "startFrame": 18,
+      "endFrame": 26
+    },
+    {
+      "word": "into",
+      "start": 0.917,
+      "end": 1.057,
+      "startFrame": 28,
+      "endFrame": 32
+    },
+    {
+      "word": "your",
+      "start": 1.115,
+      "end": 1.219,
+      "startFrame": 33,
+      "endFrame": 37
+    },
+    {
+      "word": "client's",
+      "start": 1.265,
+      "end": 1.672,
+      "startFrame": 38,
+      "endFrame": 50
+    },
+    {
+      "word": "business.",
+      "start": 1.718,
+      "end": 2.392,
+      "startFrame": 52,
+      "endFrame": 72
+    },
+    {
+      "word": "The",
+      "start": 2.566,
+      "end": 2.705,
+      "startFrame": 77,
+      "endFrame": 81
+    },
+    {
+      "word": "AI",
+      "start": 2.786,
+      "end": 3.146,
+      "startFrame": 84,
+      "endFrame": 94
+    },
+    {
+      "word": "picks",
+      "start": 3.262,
+      "end": 3.529,
+      "startFrame": 98,
+      "endFrame": 106
+    },
+    {
+      "word": "up",
+      "start": 3.587,
+      "end": 3.704,
+      "startFrame": 108,
+      "endFrame": 111
+    },
+    {
+      "word": "on",
+      "start": 3.773,
+      "end": 3.855,
+      "startFrame": 113,
+      "endFrame": 116
+    },
+    {
+      "word": "the",
+      "start": 3.901,
+      "end": 3.971,
+      "startFrame": 117,
+      "endFrame": 119
+    },
+    {
+      "word": "first",
+      "start": 4.029,
+      "end": 4.331,
+      "startFrame": 121,
+      "endFrame": 130
+    },
+    {
+      "word": "ring,",
+      "start": 4.412,
+      "end": 4.83,
+      "startFrame": 132,
+      "endFrame": 145
+    },
+    {
+      "word": "and",
+      "start": 4.946,
+      "end": 5.12,
+      "startFrame": 148,
+      "endFrame": 154
+    },
+    {
+      "word": "talks",
+      "start": 5.19,
+      "end": 5.55,
+      "startFrame": 156,
+      "endFrame": 167
+    },
+    {
+      "word": "like",
+      "start": 5.596,
+      "end": 5.759,
+      "startFrame": 168,
+      "endFrame": 173
+    },
+    {
+      "word": "a",
+      "start": 5.793,
+      "end": 5.817,
+      "startFrame": 174,
+      "endFrame": 175
+    },
+    {
+      "word": "real",
+      "start": 5.886,
+      "end": 6.084,
+      "startFrame": 177,
+      "endFrame": 183
+    },
+    {
+      "word": "person.",
+      "start": 6.153,
+      "end": 6.757,
+      "startFrame": 185,
+      "endFrame": 203
+    },
+    {
+      "word": "It",
+      "start": 6.931,
+      "end": 7.082,
+      "startFrame": 208,
+      "endFrame": 212
+    },
+    {
+      "word": "answers",
+      "start": 7.129,
+      "end": 7.5,
+      "startFrame": 214,
+      "endFrame": 225
+    },
+    {
+      "word": "the",
+      "start": 7.546,
+      "end": 7.616,
+      "startFrame": 226,
+      "endFrame": 228
+    },
+    {
+      "word": "questions,",
+      "start": 7.674,
+      "end": 8.394,
+      "startFrame": 230,
+      "endFrame": 252
+    },
+    {
+      "word": "books",
+      "start": 8.51,
+      "end": 8.812,
+      "startFrame": 255,
+      "endFrame": 264
+    },
+    {
+      "word": "the",
+      "start": 8.87,
+      "end": 8.951,
+      "startFrame": 266,
+      "endFrame": 269
+    },
+    {
+      "word": "job,",
+      "start": 9.021,
+      "end": 9.485,
+      "startFrame": 271,
+      "endFrame": 285
+    },
+    {
+      "word": "and",
+      "start": 9.601,
+      "end": 9.764,
+      "startFrame": 288,
+      "endFrame": 293
+    },
+    {
+      "word": "writes",
+      "start": 9.822,
+      "end": 10.136,
+      "startFrame": 295,
+      "endFrame": 304
+    },
+    {
+      "word": "the",
+      "start": 10.182,
+      "end": 10.275,
+      "startFrame": 305,
+      "endFrame": 308
+    },
+    {
+      "word": "whole",
+      "start": 10.333,
+      "end": 10.6,
+      "startFrame": 310,
+      "endFrame": 318
+    },
+    {
+      "word": "summary",
+      "start": 10.646,
+      "end": 11.064,
+      "startFrame": 319,
+      "endFrame": 332
+    },
+    {
+      "word": "itself.",
+      "start": 11.122,
+      "end": 11.842,
+      "startFrame": 334,
+      "endFrame": 355
+    },
+    {
+      "word": "Your",
+      "start": 12.051,
+      "end": 12.237,
+      "startFrame": 362,
+      "endFrame": 367
+    },
+    {
+      "word": "client",
+      "start": 12.283,
+      "end": 12.713,
+      "startFrame": 368,
+      "endFrame": 381
+    },
+    {
+      "word": "just",
+      "start": 12.771,
+      "end": 13.015,
+      "startFrame": 383,
+      "endFrame": 390
+    },
+    {
+      "word": "gets",
+      "start": 13.073,
+      "end": 13.293,
+      "startFrame": 392,
+      "endFrame": 399
+    },
+    {
+      "word": "the",
+      "start": 13.34,
+      "end": 13.421,
+      "startFrame": 400,
+      "endFrame": 403
+    },
+    {
+      "word": "win",
+      "start": 13.479,
+      "end": 13.793,
+      "startFrame": 404,
+      "endFrame": 414
+    },
+    {
+      "word": "as",
+      "start": 13.909,
+      "end": 14.118,
+      "startFrame": 417,
+      "endFrame": 424
+    },
+    {
+      "word": "a",
+      "start": 14.176,
+      "end": 14.211,
+      "startFrame": 425,
+      "endFrame": 426
+    },
+    {
+      "word": "text.",
+      "start": 14.28,
+      "end": 14.872,
+      "startFrame": 428,
+      "endFrame": 446
+    },
+    {
+      "word": "They",
+      "start": 15.023,
+      "end": 15.197,
+      "startFrame": 451,
+      "endFrame": 456
+    },
+    {
+      "word": "did",
+      "start": 15.255,
+      "end": 15.395,
+      "startFrame": 458,
+      "endFrame": 462
+    },
+    {
+      "word": "nothing.",
+      "start": 15.453,
+      "end": 15.94,
+      "startFrame": 464,
+      "endFrame": 478
+    },
+    {
+      "word": "You",
+      "start": 16.114,
+      "end": 16.335,
+      "startFrame": 483,
+      "endFrame": 490
+    },
+    {
+      "word": "did",
+      "start": 16.451,
+      "end": 16.614,
+      "startFrame": 494,
+      "endFrame": 498
+    },
+    {
+      "word": "nothing.",
+      "start": 16.683,
+      "end": 17.148,
+      "startFrame": 500,
+      "endFrame": 514
+    },
+    {
+      "word": "You",
+      "start": 17.357,
+      "end": 17.508,
+      "startFrame": 521,
+      "endFrame": 525
+    },
+    {
+      "word": "keep",
+      "start": 17.589,
+      "end": 17.786,
+      "startFrame": 528,
+      "endFrame": 534
+    },
+    {
+      "word": "the",
+      "start": 17.844,
+      "end": 17.914,
+      "startFrame": 535,
+      "endFrame": 537
+    },
+    {
+      "word": "margin",
+      "start": 17.984,
+      "end": 18.355,
+      "startFrame": 540,
+      "endFrame": 551
+    },
+    {
+      "word": "while",
+      "start": 18.39,
+      "end": 18.576,
+      "startFrame": 552,
+      "endFrame": 557
+    },
+    {
+      "word": "it",
+      "start": 18.611,
+      "end": 18.669,
+      "startFrame": 558,
+      "endFrame": 560
+    },
+    {
+      "word": "runs",
+      "start": 18.715,
+      "end": 18.959,
+      "startFrame": 561,
+      "endFrame": 569
+    },
+    {
+      "word": "the",
+      "start": 19.017,
+      "end": 19.087,
+      "startFrame": 571,
+      "endFrame": 573
+    },
+    {
+      "word": "front",
+      "start": 19.156,
+      "end": 19.4,
+      "startFrame": 575,
+      "endFrame": 582
+    },
+    {
+      "word": "desk.",
+      "start": 19.47,
+      "end": 20.294,
+      "startFrame": 584,
+      "endFrame": 609
+    }
+  ],
+  "captions": [
+    {
+      "text": "A call comes into your client's business.",
+      "inFrame": 0,
+      "outFrame": 72
+    },
+    {
+      "text": "The AI picks up on the first ring, and talks like a real person.",
+      "inFrame": 77,
+      "outFrame": 203
+    },
+    {
+      "text": "It answers the questions, books the job, and writes the whole summary itself.",
+      "inFrame": 208,
+      "outFrame": 355
+    },
+    {
+      "text": "Your client just gets the win as a text.",
+      "inFrame": 362,
+      "outFrame": 446
+    },
+    {
+      "text": "They did nothing.",
+      "inFrame": 451,
+      "outFrame": 478
+    },
+    {
+      "text": "You did nothing.",
+      "inFrame": 483,
+      "outFrame": 514
+    },
+    {
+      "text": "You keep the margin while it runs the front desk.",
+      "inFrame": 521,
+      "outFrame": 609
+    }
+  ]
+}

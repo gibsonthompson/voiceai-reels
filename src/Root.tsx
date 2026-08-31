@@ -5,23 +5,22 @@
  *
  * Duration resolution (per spec):
  *   1. spec.durationInFrames if explicitly set, else
- *   2. for CallFlow reels — callFlowDurationInFrames() so the reel is exactly as
- *      long as its beats/voiceover need (no fixed 20s, no trailing dead frames),
- *      else
+ *   2. a content-driven duration for beat-driven templates (CallFlow,
+ *      KineticStatement, ProductDemo) so the reel is exactly as long as its
+ *      voiceover/beats need, else
  *   3. the default durationSeconds * fps.
- *
- * Render one:  npx remotion render reel-009-callflow out/reel-009.mp4
- * Whole batch: scripts/render-batch.mjs
  */
 
 import React from 'react';
 import { Composition } from 'remotion';
-import './theme/fonts'; // registers Geist + Geist Mono deterministically
+import './theme/fonts'; // registers fonts deterministically
 import { ReelRenderer } from './engine/ReelRenderer';
 import { ReelSpec, DEFAULTS } from './specs/schema';
 import { BATCH_001 } from './specs/batch-001';
 import { BATCH_002 } from './specs/batch-002';
 import { callFlowDurationInFrames } from './templates/CallFlow';
+import { kineticDurationInFrames } from './templates/KineticStatement';
+import { productDemoDurationInFrames } from './templates/ProductDemo';
 
 const ALL_SPECS: ReelSpec[] = [...BATCH_001, ...BATCH_002];
 
@@ -32,6 +31,12 @@ function resolveDuration(spec: ReelSpec): number {
   }
   if (spec.template === 'CallFlow') {
     return callFlowDurationInFrames(spec, DEFAULTS.fps);
+  }
+  if (spec.template === 'KineticStatement') {
+    return kineticDurationInFrames(spec, DEFAULTS.fps);
+  }
+  if (spec.template === 'ProductDemo') {
+    return productDemoDurationInFrames(spec, DEFAULTS.fps);
   }
   return DEFAULTS.durationSeconds * DEFAULTS.fps;
 }

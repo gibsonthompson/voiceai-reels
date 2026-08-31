@@ -1,13 +1,9 @@
 /**
  * specs/batch-001.ts
  *
- * The CounterHero template now renders an arithmetic equation. Each non-highlight
- * stat is an operand (first row has no operator; subsequent get × then − then +);
- * the `highlight: true` stat is the result, rendered in emerald.
- *
- * Reseller math model: you sell at $149/mo, your net margin per client is ~$137
- * (after the $9.99 platform per-client fee). The Pro $99 platform fee comes off
- * the total. So `clients × $137 = take-home` is the clean two-operand equation.
+ * Reel specs. Beat-driven templates (CallFlow, KineticStatement, ProductDemo)
+ * carry `options.beats` + `options.voiceover`; the voiceover drives their timing
+ * and plays as audio. Templates without beats render on their fixed timelines.
  */
 
 import { ReelSpec } from './schema';
@@ -26,7 +22,7 @@ export const BATCH_001: ReelSpec[] = [
       stats: [
         { label: 'paying clients', value: 50 },
         { label: 'net margin / client', value: 137, prefix: '$' },
-        { label: 'you keep, monthly', value: 6850, prefix: '$', highlight: true},
+        { label: 'you keep, monthly', value: 6850, prefix: '$', highlight: true },
       ],
       payoff: { text: 'No per-client costs. No revenue share. Just margin.', emphasis: true },
     },
@@ -46,7 +42,7 @@ export const BATCH_001: ReelSpec[] = [
       stats: [
         { label: 'paying clients', value: 40 },
         { label: 'net margin / client', value: 137, prefix: '$' },
-        { label: 'you keep, monthly', value: 5480, prefix: '$', highlight: true},
+        { label: 'you keep, monthly', value: 5480, prefix: '$', highlight: true },
       ],
       payoff: { text: 'Keep 100% of the margin. Stripe Connect pays you direct.', emphasis: true },
     },
@@ -65,7 +61,7 @@ export const BATCH_001: ReelSpec[] = [
       stats: [
         { label: 'paying clients', value: 75 },
         { label: 'net margin / client', value: 137, prefix: '$' },
-        { label: 'you keep, monthly', value: 10275, prefix: '$', highlight: true},
+        { label: 'you keep, monthly', value: 10275, prefix: '$', highlight: true },
       ],
       payoff: { text: 'Same Pro plan. More clients. More margin.', emphasis: true },
     },
@@ -87,10 +83,7 @@ export const BATCH_001: ReelSpec[] = [
     notes: 'StatPunch reference — the scroll-stopper. One giant number.',
   },
   // ────────────────────────────────────────────────────────────────────────
-  // reel-005 — CONCEPT A proof-of-concept (CLAUDE.md §6.3 / §7)
-  // The recreated AI Lab Call Modal demo: CONNECTING → LIVE → bubbles type →
-  // booking captured → ENDED, with a kinetic Anton hook and a closing CTA.
-  // 30 seconds @ 30fps = 900 frames.
+  // reel-005 — ProductDemo (CONCEPT A) — BEAT-DRIVEN + VOICEOVER
   // ────────────────────────────────────────────────────────────────────────
   {
     id: 'reel-005-callmodal',
@@ -98,20 +91,26 @@ export const BATCH_001: ReelSpec[] = [
     template: 'ProductDemo',
     mode: 'dark',
     background: 'mesh',
-    durationInFrames: 900,
     kicker: 'live AI call · white-label for your agency',
     hook: 'One ring. AI books.',
     beats: [],
     options: {
+      voiceAngle: 'zero-work-margin',
+      voiceover:
+        "Watch what happens when a call comes in. The AI answers, has the conversation, and books the job while you do nothing. Booked. Your brand, your client, your margin.",
+      beats: [
+        { visual: 'hold', vo: 'Watch what happens when a call comes in.', minSeconds: 2.4 },
+        { visual: 'panel', vo: 'The AI answers, has the conversation, and books the job while you do nothing.', minSeconds: 5 },
+        { visual: 'number', vo: 'Booked.', minSeconds: 1.6 },
+        { visual: 'cta', vo: 'Your brand, your client, your margin.', minSeconds: 2.4 },
+      ],
       ctaSubline: 'Your brand. Your client. Your margin.',
     },
     cta: 'Start your agency',
-    notes:
-      'Concept A proof-of-concept — the real AI Lab CallModal animating on a timeline.',
+    notes: 'Concept A ProductDemo — beat-driven + voiceover.',
   },
   // ────────────────────────────────────────────────────────────────────────
-  // reel-006 — ProductDemo variation: different industry, different script
-  // Same template, different content. Proves the template flexes.
+  // reel-006 — ProductDemo variation: dental, different script (fixed timeline)
   // ────────────────────────────────────────────────────────────────────────
   {
     id: 'reel-006-callmodal-dental',
@@ -133,31 +132,30 @@ export const BATCH_001: ReelSpec[] = [
         bookingStart: 660,
         bookingMessage: 'Thursday · 2:30 PM · Confirmation text sent',
         transcript: [
-          { id: 't1', role: 'assistant', text: 'Hi, Bright Smile Dental. How can I help?',                  startFrame: 165 },
-          { id: 't2', role: 'user',      text: 'I need to schedule a cleaning.',                            startFrame: 270 },
-          { id: 't3', role: 'assistant', text: 'I have Thursday at 2:30 PM open. Does that work?',          startFrame: 365 },
-          { id: 't4', role: 'user',      text: 'Yeah, perfect.',                                            startFrame: 485 },
-          { id: 't5', role: 'assistant', text: 'Booked. You will get a reminder the day before.',           startFrame: 555 },
+          { id: 't1', role: 'assistant', text: 'Hi, Bright Smile Dental. How can I help?',           startFrame: 165 },
+          { id: 't2', role: 'user',      text: 'I need to schedule a cleaning.',                     startFrame: 270 },
+          { id: 't3', role: 'assistant', text: 'I have Thursday at 2:30 PM open. Does that work?',   startFrame: 365 },
+          { id: 't4', role: 'user',      text: 'Yeah, perfect.',                                     startFrame: 485 },
+          { id: 't5', role: 'assistant', text: 'Booked. You will get a reminder the day before.',    startFrame: 555 },
         ],
         events: [
-          { id: 'e1', type: 'dialing',      message: 'Calling Bright Smile Dental…',  level: 'info',    atFrame: 65  },
-          { id: 'e2', type: 'call-start',   message: 'Call connected',                level: 'success', atFrame: 130 },
-          { id: 'e3', type: 'speech-start', message: 'Assistant speaking',            level: 'info',    atFrame: 170 },
-          { id: 'e4', type: 'transcript',   message: 'Final transcript received',     level: 'info',    atFrame: 230 },
-          { id: 'e5', type: 'speech-start', message: 'Assistant speaking',            level: 'info',    atFrame: 370 },
-          { id: 'e6', type: 'transcript',   message: 'Final transcript received',     level: 'info',    atFrame: 515 },
-          { id: 'e7', type: 'tool-call',    message: 'Tool: book_appointment',        level: 'info',    atFrame: 600 },
-          { id: 'e8', type: 'booking',      message: 'Appointment booked · 2:30 PM',  level: 'success', atFrame: 645 },
-          { id: 'e9', type: 'call-end',     message: 'Call ended',                    level: 'info',    atFrame: 745 },
+          { id: 'e1', type: 'dialing',      message: 'Calling Bright Smile Dental…', level: 'info',    atFrame: 65  },
+          { id: 'e2', type: 'call-start',   message: 'Call connected',               level: 'success', atFrame: 130 },
+          { id: 'e3', type: 'speech-start', message: 'Assistant speaking',           level: 'info',    atFrame: 170 },
+          { id: 'e4', type: 'transcript',   message: 'Final transcript received',    level: 'info',    atFrame: 230 },
+          { id: 'e5', type: 'speech-start', message: 'Assistant speaking',           level: 'info',    atFrame: 370 },
+          { id: 'e6', type: 'transcript',   message: 'Final transcript received',    level: 'info',    atFrame: 515 },
+          { id: 'e7', type: 'tool-call',    message: 'Tool: book_appointment',       level: 'info',    atFrame: 600 },
+          { id: 'e8', type: 'booking',      message: 'Appointment booked · 2:30 PM', level: 'success', atFrame: 645 },
+          { id: 'e9', type: 'call-end',     message: 'Call ended',                   level: 'info',    atFrame: 745 },
         ],
       },
     },
     cta: 'Start your agency',
-    notes:
-      'ProductDemo variation — dental industry script. Proves the template flexes via spec data only.',
+    notes: 'ProductDemo variation — dental. Fixed-timeline (no voiceover yet).',
   },
   // ────────────────────────────────────────────────────────────────────────
-  // reel-007 — KineticStatement (Concept B): the reseller positioning line
+  // reel-007 — KineticStatement (Concept B) — BEAT-DRIVEN + VOICEOVER
   // ────────────────────────────────────────────────────────────────────────
   {
     id: 'reel-007-kinetic-selling',
@@ -165,23 +163,52 @@ export const BATCH_001: ReelSpec[] = [
     template: 'KineticStatement',
     mode: 'dark',
     background: 'mesh',
-    durationInFrames: 540, // 18s
     kicker: 'the difference',
     hook: "You're not building the AI. You're selling it.",
     beats: [],
     options: {
+      voiceAngle: 'agency-fomo',
+      voiceover:
+        "You're not building the AI. You're selling it. White-label. Your brand. Real margin.",
+      beats: [
+        { visual: 'statement', vo: "You're not building the AI.", caption: "YOU'RE NOT BUILDING THE AI.", minSeconds: 2 },
+        { visual: 'statement', vo: "You're selling it.", caption: "YOU'RE SELLING IT.", emphasis: ['selling'], minSeconds: 1.8 },
+        { visual: 'cta', vo: 'White-label. Your brand. Real margin.', minSeconds: 2.4 },
+      ],
       emphasisWords: ['selling'],
       ctaSubline: 'White-label. Your brand. Real margin.',
     },
     cta: 'Start your agency',
-    notes:
-      'Concept B punchy interlude — the reseller framing. Kinetic typography only.',
+    notes: 'Concept B — beat-driven + voiceover. Reseller framing.',
   },
   // ────────────────────────────────────────────────────────────────────────
-  // reel-009 — CallFlow (CONCEPT A REDESIGNED)
-  // The real product story: call comes in → AI handles it → owner sees the
-  // AI Summary card + Contact Details → owner gets a text. No chat log.
-  // No eyebrow kicker. Five beats, one dominant element each. 30s.
+  // reel-008 — KineticStatement — BEAT-DRIVEN + VOICEOVER
+  // ────────────────────────────────────────────────────────────────────────
+  {
+    id: 'reel-008-kinetic-friday',
+    seed: 8008,
+    template: 'KineticStatement',
+    mode: 'dark',
+    background: 'sweep',
+    kicker: 'no courses · no upsells · no guru nonsense',
+    hook: 'Start an AI receptionist agency by Friday.',
+    beats: [],
+    options: {
+      voiceAngle: 'speed-to-revenue',
+      voiceover:
+        'Start an AI receptionist agency this week. Pick a brand. Pick a plan. Go.',
+      beats: [
+        { visual: 'statement', vo: 'Start an AI receptionist agency this week.', caption: 'START AN AI AGENCY THIS WEEK.', emphasis: ['week'], minSeconds: 2.6 },
+        { visual: 'cta', vo: 'Pick a brand. Pick a plan. Go.', minSeconds: 2.2 },
+      ],
+      emphasisWords: ['week'],
+      ctaSubline: 'Pick a brand. Pick a plan. Go.',
+    },
+    cta: 'Start your agency',
+    notes: 'Concept B — beat-driven + voiceover. Grounded speed angle (no cringe).',
+  },
+  // ────────────────────────────────────────────────────────────────────────
+  // reel-009 — CallFlow (CONCEPT A) — BEAT-DRIVEN + VOICEOVER
   // ────────────────────────────────────────────────────────────────────────
   {
     id: 'reel-009-callflow',
@@ -189,10 +216,19 @@ export const BATCH_001: ReelSpec[] = [
     template: 'CallFlow',
     mode: 'dark',
     background: 'mesh',
-    durationInFrames: 900,
     hook: '',
     beats: [],
     options: {
+      voiceAngle: 'zero-work-margin',
+      voiceover:
+        "A call comes into your client's business. The AI picks up on the first ring, and talks like a real person. It answers the questions, books the job, and writes the whole summary itself. Your client just gets the win as a text. They did nothing. You did nothing. You keep the margin while it runs the front desk.",
+      beats: [
+        { visual: 'ringing', vo: "A call comes into your client's business.", caption: 'Incoming call', minSeconds: 2.2 },
+        { visual: 'live', vo: 'The AI picks up on the first ring, and talks like a real person.', caption: 'Sounds human', emphasis: ['human'], minSeconds: 3 },
+        { visual: 'summary', vo: 'It answers the questions, books the job, and writes the whole summary itself.', caption: 'It does the work', emphasis: ['work'], minSeconds: 3.5 },
+        { visual: 'sms', vo: 'Your client just gets the win as a text. They did nothing. You did nothing.', caption: 'Zero work for you', emphasis: ['zero'], minSeconds: 3 },
+        { visual: 'cta', vo: 'You keep the margin while it runs the front desk.', minSeconds: 2.6 },
+      ],
       ctaSubline: 'Your brand. Your client. Your margin.',
       callFlow: {
         businessName: 'Riverside Plumbing',
@@ -208,35 +244,10 @@ export const BATCH_001: ReelSpec[] = [
       },
     },
     cta: 'Start your agency',
-    notes:
-      'Concept A redesigned — call → live → AI Summary card + contact details → SMS notification → CTA.',
-  },
-  // ────────────────────────────────────────────────────────────────────────
-  // reel-008 — KineticStatement: the deadline framing
-  // ────────────────────────────────────────────────────────────────────────
-  {
-    id: 'reel-008-kinetic-friday',
-    seed: 8008,
-    template: 'KineticStatement',
-    mode: 'dark',
-    background: 'sweep',
-    durationInFrames: 510, // 17s
-    kicker: 'no courses · no upsells · no guru nonsense',
-    hook: 'Start an AI receptionist agency by Friday.',
-    beats: [],
-    options: {
-      emphasisWords: ['friday'],
-      ctaSubline: 'Pick a brand. Pick a plan. Go.',
-    },
-    cta: 'Start your agency',
-    notes:
-      'Concept B punchy interlude — the deadline hook. One bold line, emerald payoff.',
+    notes: 'Concept A beat-driven + voiceover. Timing derived from VO.',
   },
   // ════════════════════════════════════════════════════════════════════════
-  // BATCH 2 — 9 new unique reels (per Gibson 2026-06-10).
-  // 6 CallFlow industry variants + 3 KineticStatement statements.
-  // Each industry has its own caller, summary, SMS body, captions.
-  // Mode/background mixed for visual variety across the set.
+  // CallFlow industry variants (fixed-timeline, hardcoded captions — no VO yet)
   // ════════════════════════════════════════════════════════════════════════
   {
     id: 'reel-010-callflow-hvac',
@@ -295,10 +306,10 @@ export const BATCH_001: ReelSpec[] = [
           'New roadside — David Park, car stalled at Cedar & 4th. Tow dispatched, ETA 35 min, work order opened.',
       },
       captions: [
-        { text: 'A stranded driver calls in.',                   inFrame: 28,  outFrame: 84,  emphasis: [] },
+        { text: 'A stranded driver calls in.',                     inFrame: 28,  outFrame: 84,  emphasis: [] },
         { text: 'Your AI picks up. No missed call. No lost lead.', inFrame: 110, outFrame: 200, emphasis: ['no'] },
         { text: 'It logs the job. Sends a tow.',                   inFrame: 235, outFrame: 590, emphasis: ['tow'] },
-        { text: 'Owner sees it land. By text.',                     inFrame: 660, outFrame: 770, emphasis: ['text'] },
+        { text: 'Owner sees it land. By text.',                    inFrame: 660, outFrame: 770, emphasis: ['text'] },
       ],
     },
     cta: 'Start your agency',
@@ -328,10 +339,10 @@ export const BATCH_001: ReelSpec[] = [
           'New estimate — Lisa Hernandez, wind damage, Friday 1:00 PM. Address sent, prep notes attached.',
       },
       captions: [
-        { text: 'A homeowner calls after the storm.',             inFrame: 28,  outFrame: 84,  emphasis: [] },
-        { text: 'Your AI handles the intake.',                     inFrame: 110, outFrame: 200, emphasis: [] },
-        { text: 'It scopes the job. Books the visit.',              inFrame: 235, outFrame: 590, emphasis: ['books'] },
-        { text: 'Owner gets the lead as a text.',                   inFrame: 660, outFrame: 770, emphasis: ['lead'] },
+        { text: 'A homeowner calls after the storm.', inFrame: 28,  outFrame: 84,  emphasis: [] },
+        { text: 'Your AI handles the intake.',        inFrame: 110, outFrame: 200, emphasis: [] },
+        { text: 'It scopes the job. Books the visit.', inFrame: 235, outFrame: 590, emphasis: ['books'] },
+        { text: 'Owner gets the lead as a text.',      inFrame: 660, outFrame: 770, emphasis: ['lead'] },
       ],
     },
     cta: 'Start your agency',
@@ -361,10 +372,10 @@ export const BATCH_001: ReelSpec[] = [
           'New consult — Jessica Lee, first-time botox, Thursday 4:30 PM. Intake form sent.',
       },
       captions: [
-        { text: 'A new patient calls about a service.',            inFrame: 28,  outFrame: 84,  emphasis: [] },
-        { text: 'Your AI answers in one ring.',                     inFrame: 110, outFrame: 200, emphasis: [] },
-        { text: 'It books. It sends intake. It logs the lead.',     inFrame: 235, outFrame: 590, emphasis: ['books'] },
-        { text: 'Owner sees the booking by text.',                   inFrame: 660, outFrame: 770, emphasis: ['text'] },
+        { text: 'A new patient calls about a service.',        inFrame: 28,  outFrame: 84,  emphasis: [] },
+        { text: 'Your AI answers in one ring.',                inFrame: 110, outFrame: 200, emphasis: [] },
+        { text: 'It books. It sends intake. It logs the lead.', inFrame: 235, outFrame: 590, emphasis: ['books'] },
+        { text: 'Owner sees the booking by text.',             inFrame: 660, outFrame: 770, emphasis: ['text'] },
       ],
     },
     cta: 'Start your agency',
@@ -394,10 +405,10 @@ export const BATCH_001: ReelSpec[] = [
           'New urgent — Marcus Brown, dog lethargic, today 3:15 PM. Pre-visit instructions sent.',
       },
       captions: [
-        { text: 'A worried pet owner calls in.',                    inFrame: 28,  outFrame: 84,  emphasis: [] },
-        { text: 'Your AI picks up before they can hang up.',         inFrame: 110, outFrame: 200, emphasis: [] },
-        { text: 'It triages. Books the same-day slot.',               inFrame: 235, outFrame: 590, emphasis: ['same-day'] },
-        { text: 'Owner sees the booking as a text.',                   inFrame: 660, outFrame: 770, emphasis: ['text'] },
+        { text: 'A worried pet owner calls in.',            inFrame: 28,  outFrame: 84,  emphasis: [] },
+        { text: 'Your AI picks up before they can hang up.', inFrame: 110, outFrame: 200, emphasis: [] },
+        { text: 'It triages. Books the same-day slot.',       inFrame: 235, outFrame: 590, emphasis: ['same-day'] },
+        { text: 'Owner sees the booking as a text.',          inFrame: 660, outFrame: 770, emphasis: ['text'] },
       ],
     },
     cta: 'Start your agency',
@@ -427,17 +438,17 @@ export const BATCH_001: ReelSpec[] = [
           'New recurring quote — Rachel Davis, weekly cleaning, Saturday 10 AM walk-through. Quote range sent.',
       },
       captions: [
-        { text: 'A recurring-revenue lead calls in.',               inFrame: 28,  outFrame: 84,  emphasis: ['recurring-revenue'] },
-        { text: 'Your AI takes it. Without anyone in the office.',    inFrame: 110, outFrame: 200, emphasis: [] },
-        { text: 'It books a walk-through. Sends the quote.',           inFrame: 235, outFrame: 590, emphasis: ['quote'] },
-        { text: 'Owner gets the lead delivered by text.',              inFrame: 660, outFrame: 770, emphasis: ['lead'] },
+        { text: 'A recurring-revenue lead calls in.',            inFrame: 28,  outFrame: 84,  emphasis: ['recurring-revenue'] },
+        { text: 'Your AI takes it. Without anyone in the office.', inFrame: 110, outFrame: 200, emphasis: [] },
+        { text: 'It books a walk-through. Sends the quote.',        inFrame: 235, outFrame: 590, emphasis: ['quote'] },
+        { text: 'Owner gets the lead delivered by text.',           inFrame: 660, outFrame: 770, emphasis: ['lead'] },
       ],
     },
     cta: 'Start your agency',
     notes: 'CallFlow — recurring residential cleaning quote.',
   },
   // ────────────────────────────────────────────────────────────────────────
-  // KineticStatement variants (short, punchy, no kicker — auto-fit enabled)
+  // KineticStatement variants (fixed-timeline — no VO yet)
   // ────────────────────────────────────────────────────────────────────────
   {
     id: 'reel-016-kinetic-yourbrand',
@@ -471,9 +482,24 @@ export const BATCH_001: ReelSpec[] = [
     cta: 'Start your agency',
     notes: 'Kinetic statement — anti-guru framing.',
   },
+  {
+    id: 'reel-018-kinetic-everycall',
+    seed: 18018,
+    template: 'KineticStatement',
+    mode: 'light',
+    background: 'grid',
+    durationInFrames: 510,
+    hook: 'Every missed call. Captured. Booked. Paid.',
+    beats: [],
+    options: {
+      emphasisWords: ['captured', 'booked', 'paid'],
+      ctaSubline: 'One ring. The AI does the rest.',
+    },
+    cta: 'Start your agency',
+    notes: 'Kinetic statement — value chain in three words, LIGHT mode.',
+  },
   // ────────────────────────────────────────────────────────────────────────
-  // reel-050 — VERIFICATION SPEC for the BeforeAfter template (visual test).
-  // Kept in-batch so `npx remotion still reel-050-beforeafter --frame=N` works.
+  // Verification specs for the remaining templates (fixed-timeline)
   // ────────────────────────────────────────────────────────────────────────
   {
     id: 'reel-050-beforeafter',
@@ -499,9 +525,6 @@ export const BATCH_001: ReelSpec[] = [
     cta: 'Start your agency',
     notes: 'BeforeAfter verification spec.',
   },
-  // ────────────────────────────────────────────────────────────────────────
-  // reel-051 — VERIFICATION SPEC for the StatementStack template.
-  // ────────────────────────────────────────────────────────────────────────
   {
     id: 'reel-051-statementstack',
     seed: 51051,
@@ -514,17 +537,14 @@ export const BATCH_001: ReelSpec[] = [
     options: {
       ctaSubline: 'A platform, not a course. Not a guru.',
       statements: [
-        { text: "You're not building the AI.",     emphasis: ['building'] },
-        { text: "You're selling it.",              emphasis: ['selling'] },
-        { text: 'You keep the margin.',            emphasis: ['margin'] },
+        { text: "You're not building the AI.", emphasis: ['building'] },
+        { text: "You're selling it.",          emphasis: ['selling'] },
+        { text: 'You keep the margin.',        emphasis: ['margin'] },
       ],
     },
     cta: 'Start your agency',
     notes: 'StatementStack verification spec — 3 progressive claims.',
   },
-  // ────────────────────────────────────────────────────────────────────────
-  // reel-052 — VERIFICATION SPEC for the DashboardShowcase template.
-  // ────────────────────────────────────────────────────────────────────────
   {
     id: 'reel-052-dashboard',
     seed: 52052,
@@ -545,21 +565,5 @@ export const BATCH_001: ReelSpec[] = [
     },
     cta: 'Start your agency',
     notes: 'DashboardShowcase verification spec — calls variant.',
-  },
-  {
-    id: 'reel-018-kinetic-everycall',
-    seed: 18018,
-    template: 'KineticStatement',
-    mode: 'light',
-    background: 'grid',
-    durationInFrames: 510,
-    hook: 'Every missed call. Captured. Booked. Paid.',
-    beats: [],
-    options: {
-      emphasisWords: ['captured', 'booked', 'paid'],
-      ctaSubline: 'One ring. The AI does the rest.',
-    },
-    cta: 'Start your agency',
-    notes: 'Kinetic statement — value chain in three words, LIGHT mode.',
   },
 ];
