@@ -4,7 +4,6 @@
  * writes public/vo/<id>/voice.mp3 + timing.json. Voice + tuned settings from voices.mjs.
  *
  *   npm run make-reels -- <reel-id>
- *   node --env-file=.env scripts/generate-voiceovers.mjs --only <id> --force
  */
 
 import fs from 'node:fs';
@@ -47,7 +46,9 @@ function charTimesToWords(alignment, fps) {
     cur.end = ends[i];
   }
   if (cur) words.push(cur);
-  return words.map((w) => ({
+  // Drop break-tag fragments so they don't become fake words in captions/timing.
+  const clean = words.filter((w) => !/[<>]/.test(w.word) && !/^(break|time=|\/)$/i.test(w.word));
+  return clean.map((w) => ({
     ...w,
     startFrame: Math.round(w.start * fps),
     endFrame: Math.round(w.end * fps),
@@ -67,12 +68,20 @@ function wordsToCaptions(words) {
   return lines;
 }
 
+/** Strip SSML break tags + collapse whitespace, for word counting only. */
+function plainWords(text) {
+  return text
+    .replace(/<break[^>]*\/>/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function beatFrameDurations(beats, words, fps) {
   const durations = [];
   let wi = 0;
   for (const b of beats) {
     if (!b.vo) { durations.push(Math.round((b.minSeconds ?? 1.2) * fps)); continue; }
-    const target = b.vo.replace(/\s+/g, ' ').trim().split(' ').length;
+    const target = plainWords(b.vo).split(' ').filter(Boolean).length;
     const startFrame = words[wi]?.startFrame ?? 0;
     let consumed = 0, endFrame = startFrame;
     while (wi < words.length && consumed < target) { endFrame = words[wi].endFrame; wi++; consumed++; }

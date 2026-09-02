@@ -97,12 +97,12 @@ export const BATCH_001: ReelSpec[] = [
     options: {
       voiceAngle: 'zero-work-margin',
       voiceover:
-        "Watch what happens when a call comes in. The AI answers, has the conversation, and books the job while you do nothing. Booked. Your brand, your client, your margin.",
+        "Here's what happens when a call comes into your client's business. <break time=\"0.4s\" /> The A I picks up on the first ring. <break time=\"0.3s\" /> It has a real conversation, answers the questions, <break time=\"0.25s\" /> and books the job. <break time=\"0.5s\" /> You didn't lift a finger. <break time=\"0.4s\" /> Neither did your client. <break time=\"0.6s\" /> Your brand. <break time=\"0.35s\" /> Your client. <break time=\"0.35s\" /> Your margin.",
       beats: [
-        { visual: 'hold', vo: 'Watch what happens when a call comes in.', minSeconds: 2.4 },
-        { visual: 'panel', vo: 'The AI answers, has the conversation, and books the job while you do nothing.', minSeconds: 5 },
-        { visual: 'number', vo: 'Booked.', minSeconds: 1.6 },
-        { visual: 'cta', vo: 'Your brand, your client, your margin.', minSeconds: 2.4 },
+        { visual: 'hold', vo: "Here's what happens when a call comes into your client's business.", minSeconds: 3.2 },
+        { visual: 'panel', vo: 'The A I picks up on the first ring. It has a real conversation, answers the questions, and books the job.', minSeconds: 8, tailSeconds: 0.6 },
+        { visual: 'number', vo: "You didn't lift a finger. Neither did your client.", minSeconds: 3.2 },
+        { visual: 'cta', vo: 'Your brand. Your client. Your margin.', minSeconds: 3 },
       ],
       ctaSubline: 'Your brand. Your client. Your margin.',
     },

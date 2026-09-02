@@ -1,0 +1,247 @@
+{
+  "reelId": "reel-005-callmodal",
+  "fps": 30,
+  "voice": "peer",
+  "settings": {
+    "stability": 0.42,
+    "similarity_boost": 0.78,
+    "style": 0.18,
+    "use_speaker_boost": true,
+    "speed": 0.94
+  },
+  "script": "Watch what happens when a call comes in. The AI answers, has the conversation, and books the job while you do nothing. Booked. Your brand, your client, your margin.",
+  "durationFrames": 410,
+  "voBeatFrames": [
+    72,
+    175,
+    18,
+    110
+  ],
+  "words": [
+    {
+      "word": "Watch",
+      "start": 0,
+      "end": 0.348,
+      "startFrame": 0,
+      "endFrame": 10
+    },
+    {
+      "word": "what",
+      "start": 0.395,
+      "end": 0.534,
+      "startFrame": 12,
+      "endFrame": 16
+    },
+    {
+      "word": "happens",
+      "start": 0.592,
+      "end": 0.975,
+      "startFrame": 18,
+      "endFrame": 29
+    },
+    {
+      "word": "when",
+      "start": 1.022,
+      "end": 1.161,
+      "startFrame": 31,
+      "endFrame": 35
+    },
+    {
+      "word": "a",
+      "start": 1.196,
+      "end": 1.231,
+      "startFrame": 36,
+      "endFrame": 37
+    },
+    {
+      "word": "call",
+      "start": 1.289,
+      "end": 1.579,
+      "startFrame": 39,
+      "endFrame": 47
+    },
+    {
+      "word": "comes",
+      "start": 1.66,
+      "end": 1.927,
+      "startFrame": 50,
+      "endFrame": 58
+    },
+    {
+      "word": "in.",
+      "start": 1.997,
+      "end": 2.392,
+      "startFrame": 60,
+      "endFrame": 72
+    },
+    {
+      "word": "The",
+      "start": 2.577,
+      "end": 2.717,
+      "startFrame": 77,
+      "endFrame": 82
+    },
+    {
+      "word": "AI",
+      "start": 2.798,
+      "end": 3.204,
+      "startFrame": 84,
+      "endFrame": 96
+    },
+    {
+      "word": "answers,",
+      "start": 3.286,
+      "end": 3.947,
+      "startFrame": 99,
+      "endFrame": 118
+    },
+    {
+      "word": "has",
+      "start": 4.203,
+      "end": 4.458,
+      "startFrame": 126,
+      "endFrame": 134
+    },
+    {
+      "word": "the",
+      "start": 4.528,
+      "end": 4.598,
+      "startFrame": 136,
+      "endFrame": 138
+    },
+    {
+      "word": "conversation,",
+      "start": 4.656,
+      "end": 5.631,
+      "startFrame": 140,
+      "endFrame": 169
+    },
+    {
+      "word": "and",
+      "start": 5.817,
+      "end": 6.014,
+      "startFrame": 175,
+      "endFrame": 180
+    },
+    {
+      "word": "books",
+      "start": 6.142,
+      "end": 6.432,
+      "startFrame": 184,
+      "endFrame": 193
+    },
+    {
+      "word": "the",
+      "start": 6.49,
+      "end": 6.571,
+      "startFrame": 195,
+      "endFrame": 197
+    },
+    {
+      "word": "job",
+      "start": 6.653,
+      "end": 6.989,
+      "startFrame": 200,
+      "endFrame": 210
+    },
+    {
+      "word": "while",
+      "start": 7.059,
+      "end": 7.314,
+      "startFrame": 212,
+      "endFrame": 219
+    },
+    {
+      "word": "you",
+      "start": 7.361,
+      "end": 7.465,
+      "startFrame": 221,
+      "endFrame": 224
+    },
+    {
+      "word": "do",
+      "start": 7.546,
+      "end": 7.674,
+      "startFrame": 226,
+      "endFrame": 230
+    },
+    {
+      "word": "nothing.",
+      "start": 7.779,
+      "end": 8.394,
+      "startFrame": 233,
+      "endFrame": 252
+    },
+    {
+      "word": "Booked.",
+      "start": 8.742,
+      "end": 9.334,
+      "startFrame": 262,
+      "endFrame": 280
+    },
+    {
+      "word": "Your",
+      "start": 9.59,
+      "end": 9.81,
+      "startFrame": 288,
+      "endFrame": 294
+    },
+    {
+      "word": "brand,",
+      "start": 9.88,
+      "end": 10.6,
+      "startFrame": 296,
+      "endFrame": 318
+    },
+    {
+      "word": "your",
+      "start": 10.786,
+      "end": 10.96,
+      "startFrame": 324,
+      "endFrame": 329
+    },
+    {
+      "word": "client,",
+      "start": 11.029,
+      "end": 11.773,
+      "startFrame": 331,
+      "endFrame": 353
+    },
+    {
+      "word": "your",
+      "start": 11.993,
+      "end": 12.179,
+      "startFrame": 360,
+      "endFrame": 365
+    },
+    {
+      "word": "margin.",
+      "start": 12.283,
+      "end": 13.282,
+      "startFrame": 368,
+      "endFrame": 398
+    }
+  ],
+  "captions": [
+    {
+      "text": "Watch what happens when a call comes in.",
+      "inFrame": 0,
+      "outFrame": 72
+    },
+    {
+      "text": "The AI answers, has the conversation, and books the job while you do nothing.",
+      "inFrame": 77,
+      "outFrame": 252
+    },
+    {
+      "text": "Booked.",
+      "inFrame": 262,
+      "outFrame": 280
+    },
+    {
+      "text": "Your brand, your client, your margin.",
+      "inFrame": 288,
+      "outFrame": 398
+    }
+  ]
+}

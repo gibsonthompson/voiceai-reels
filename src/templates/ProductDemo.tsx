@@ -143,9 +143,11 @@ export const ProductDemo: React.FC<Props> = ({ spec, theme, background }) => {
     ctaStart = ctaBeat?.startFrame ?? tf - 120;
     bookingFrame = bookBeat?.startFrame ?? ctaStart - 90;
     totalFrames = tf;
-    // Scale the modal's scripted call so its booking lands at bookingFrame.
+    // Scale the call so the modal's OWN booking banner lands ~0.8s BEFORE the
+    // giant BOOKED. callout, so the two don't stack on top of the transcript.
     const origBooking = rawScript.bookingStart ?? 660;
-    script = scaleScript(rawScript, bookingFrame / origBooking);
+    const modalBookingTarget = Math.max(1, bookingFrame - Math.round(fps * 0.8));
+    script = scaleScript(rawScript, modalBookingTarget / origBooking);
   } else {
     // fallback: original fixed timeline
     ctaStart = 770;
